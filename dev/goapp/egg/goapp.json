@@ -1,0 +1,7 @@
+{
+    "goroot": null,
+    "gopath": {
+        "external": "gopath/external",
+        "app": "gopath/app"
+    }
+}
