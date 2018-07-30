@@ -1,0 +1,64 @@
+application: [YOUR_PROJECT_ID]
+version: 1
+runtime: go
+api_version: go1
+service: default
+
+default_expiration: '4d 5h'
+
+env_variables:
+  PHASE: 'develop'
+
+inbound_services:
+- warmup
+
+handlers:
+- url: /web
+  static_dir: rc/web
+
+- url: /(.*\.(gif|png|jpg))$
+  static_files: static/\1
+  upload: static/.*\.(gif|png|jpg)$
+
+- url: /_ah/warmup
+  script: _go_app
+  login: admin
+
+- url: /.*
+  script: _go_app
+  #login: required
+  #secure: always
+
+instance_class: F1
+automatic_scaling:
+  min_idle_instances: automatic
+  max_idle_instances: 1
+  min_pending_latency: 3000ms
+  max_pending_latency: automatic
+  max_concurrent_requests: 80
+
+error_handlers:
+- file: default_error.html
+
+- error_code: over_quota
+  file: over_quota.html
+
+- error_code: dos_api_denial
+  file: dos_api_denial.html
+
+- error_code: timeout
+  file: timeout.html
+
+skip_files:
+- ^(.*/)?app\.yaml
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+- ^(.*/)?\.bak$
+- \.gitignore
+- ^\.git/.*
+- ^README*
+- web/
+- tmp/
